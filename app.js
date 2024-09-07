@@ -50,31 +50,11 @@ const upload = multer({
 
 app.use(express.static(staticFolderPath)); // Обслуживание файлов в папке static
 
-const cache = new Map();
-
-const createChangeKey = () => {
-  const files = fs.readdirSync(staticFolderPath);
-
-  return files.length;
-};
-
-const updateCache = () => {
-  console.log("updateCache");
-  cache.clear();
-
-  const key = createChangeKey();
-
-  const combinedData = combineStaticFiles();
-
-  cache.set(key, combinedData);
-};
-
 app.post("/upload-json", upload.single("jsonfile"), (req, res) => {
   if (!req.file) {
     return res.status(400).send("Ошибка: Файл не загружен.");
   }
   res.send(`Файл ${req.file.originalname} успешно загружен!`);
-  cache.set();
 });
 
 // Функция для чтения и объединения JSON-файлов
@@ -103,16 +83,10 @@ app.get("/matches", async (req, res) => {
     if (q !== "1") {
       return res.json({});
     }
-    const key = createChangeKey();
-
-    if (cache.has(key)) {
-      return res.json(cache.get(key));
-    }
 
     const combinedData = combineStaticFiles();
 
     res.json(combinedData);
-    updateCache();
   } catch (error) {
     console.error("Ошибка:", error);
     res.status(500).json({ error: "Ошибка при чтении JSON-файлов" });
