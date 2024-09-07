@@ -119,6 +119,24 @@ app.get("/matches", async (req, res) => {
   }
 });
 
+app.get("/top", async (req, res) => {
+  try {
+    const q = req.query.q;
+    if (q !== "1") {
+      return res.json([]);
+    }
+
+    const filePath = "top5.json";
+    const fileContent = fs.readFileSync(filePath, "utf-8"); // Читаем содержимое файла
+    const jsonData = JSON.parse(fileContent); // Парсим содержимое как JSON
+
+    res.json(jsonData);
+  } catch (error) {
+    console.error("Ошибка:", error);
+    res.status(500).json({ error: "Ошибка при чтении JSON-файлов" });
+  }
+});
+
 // Маршрут для отображения формы загрузки файлов
 app.get("/upload-form", (req, res) => {
   res.send(`
